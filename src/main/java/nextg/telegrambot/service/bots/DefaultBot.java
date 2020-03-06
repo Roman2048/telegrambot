@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nextg.telegrambot.domain.Update;
-import nextg.telegrambot.exception.ConnectionTimeOut;
+import nextg.telegrambot.exception.ConnectionTimeOutException;
 import nextg.telegrambot.exception.TokenNotFoundException;
 import nextg.telegrambot.repository.UpdateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +33,11 @@ public class DefaultBot {
     @Autowired
     UpdateRepository updateRepository;
 
-    public Integer update() throws ConnectionTimeOut, JsonProcessingException, TokenNotFoundException {
+    public Integer update() throws ConnectionTimeOutException, JsonProcessingException, TokenNotFoundException {
         HttpClient client = getHttpClient();
         HttpRequest request = getHttpRequest();
         String response = doRequest(getHttpClient(), getHttpRequest());
-        if (response.equals("")) { throw new ConnectionTimeOut(); }
+        if (response.equals("")) { throw new ConnectionTimeOutException(); }
         List<JsonNode> updates = getJsonNodes(response);
         return saveToDb(updates);
     }

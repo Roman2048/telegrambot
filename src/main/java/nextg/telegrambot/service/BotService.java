@@ -1,7 +1,7 @@
 package nextg.telegrambot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import nextg.telegrambot.exception.ConnectionTimeOut;
+import nextg.telegrambot.exception.ConnectionTimeOutException;
 import nextg.telegrambot.exception.TokenNotFoundException;
 import nextg.telegrambot.service.bots.DefaultBot;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class BotService {
             }
         } catch (TokenNotFoundException t) {
             System.out.print("- token error");
-        } catch (ConnectionTimeOut connectionTimeOut) {
+        } catch (ConnectionTimeOutException connectionTimeOutException) {
             System.out.print("- ");
         } catch (JsonProcessingException e) {
             System.out.print("- json error");

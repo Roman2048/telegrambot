@@ -16,6 +16,9 @@ public class Update {
     @Column(name = "user_id")
     private String userId;
 
+    @Column(name = "answered")
+    private Boolean answered;
+
     public Update() {}
 
     public Update(Long id, String content, String userId) {
@@ -46,5 +49,13 @@ public class Update {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public Boolean getAnswered() {
+        return answered;
+    }
+
+    public void setAnswered(Boolean answered) {
+        this.answered = answered;
     }
 }
