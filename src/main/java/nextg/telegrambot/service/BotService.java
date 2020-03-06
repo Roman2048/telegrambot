@@ -1,33 +1,33 @@
 package nextg.telegrambot.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import nextg.telegrambot.exception.ConnectionTimeOutException;
 import nextg.telegrambot.exception.TokenNotFoundException;
-import nextg.telegrambot.service.bots.DefaultBot;
+import nextg.telegrambot.service.bots.ReaderBot;
+import nextg.telegrambot.service.bots.WriterBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 @Component
 public class BotService {
 
     @Autowired
-    DefaultBot defaultBot;
+    ReaderBot readerBot;
+
+    @Autowired
+    WriterBot writerBot;
 
     @Scheduled(fixedRate = 5000)
-    public void runUpdateCycle() {
+    private void runUpdateCycle() {
         try {
-            Integer numberOfUpdated = defaultBot.update();
-            System.out.print("+ ");
-            if (numberOfUpdated != 0) {
-                System.out.println("\n" + numberOfUpdated + " record(s) added");
-            }
-        } catch (TokenNotFoundException t) {
-            System.out.print("- token error");
-        } catch (ConnectionTimeOutException connectionTimeOutException) {
-            System.out.print("- ");
-        } catch (JsonProcessingException e) {
-            System.out.print("- json error");
+            Set<JsonNode> newUpdates = readerBot.update();
+            if (!newUpdates.isEmpty()) { writerBot.answer(newUpdates); }
+        } catch (TokenNotFoundException | ConnectionTimeOutException | JsonProcessingException e) {
+            e.getLocalizedMessage();
         }
     }
 }

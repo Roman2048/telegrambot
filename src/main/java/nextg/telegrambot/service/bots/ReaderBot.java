@@ -17,11 +17,13 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class DefaultBot {
+public class ReaderBot {
 
     @Value("${token}")
     String token;
@@ -33,7 +35,7 @@ public class DefaultBot {
     @Autowired
     UpdateRepository updateRepository;
 
-    public Integer update() throws ConnectionTimeOutException, JsonProcessingException, TokenNotFoundException {
+    public Set<JsonNode> update() throws ConnectionTimeOutException, JsonProcessingException, TokenNotFoundException {
         HttpClient client = getHttpClient();
         HttpRequest request = getHttpRequest();
         String response = doRequest(getHttpClient(), getHttpRequest());
@@ -42,18 +44,18 @@ public class DefaultBot {
         return saveToDb(updates);
     }
 
-    private int saveToDb(List<JsonNode> updates) {
-        int counterOfUpdates = 0;
+    private Set<JsonNode> saveToDb(List<JsonNode> updates) {
+        Set<JsonNode> newUpdates = new HashSet<>();
         for (JsonNode jn : updates) {
             Long id = jn.get("update_id").asLong();
             if (!updateRepository.existsById(id)) {
                 String content = jn.toString();
                 String userId = jn.get("message").get("from").get("id").toString();
                 updateRepository.save(new Update(id, content, userId));
-                counterOfUpdates++;
+                newUpdates.add(jn);
             }
         }
-        return counterOfUpdates;
+        return newUpdates;
     }
 
     private List<JsonNode> getJsonNodes(String response) throws JsonProcessingException {
