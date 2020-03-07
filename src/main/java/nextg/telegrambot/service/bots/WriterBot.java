@@ -1,6 +1,8 @@
 package nextg.telegrambot.service.bots;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nextg.telegrambot.domain.Annotation;
 import nextg.telegrambot.domain.Update;
 import nextg.telegrambot.exception.TokenNotFoundException;
@@ -35,11 +37,15 @@ public class WriterBot extends AbstractBot {
     }
 
     private void sendMessage(Long update_id, HttpClient httpClient, HttpRequest httpRequest) {
-        boolean responseDelivered = false;
-        while(!responseDelivered) {
-            String telegramResponse = doRequest(httpClient, httpRequest); // !
-            if (!telegramResponse.equals("")) {
-                responseDelivered = true;
+        boolean responseStatus = false;
+        while(!responseStatus) {
+            String telegramResponse = doRequest(httpClient, httpRequest);
+            try {
+                responseStatus = new ObjectMapper().readTree(telegramResponse).get("ok").asBoolean();
+            } catch (JsonProcessingException e) {
+                continue;
+            }
+            if (responseStatus && !telegramResponse.equals("")) {
                 Optional<Update> optionalUpdate = updateRepository.findById(update_id);
                 Update update = optionalUpdate.orElseThrow();
                 update.setAnswered(true);
@@ -52,7 +58,6 @@ public class WriterBot extends AbstractBot {
         Iterable<Annotation> annotations = annotationRepository.findAll();
         String messageToUser = "Not found";
         for (Annotation a : annotations) {
-            System.out.println("Search for: "+ a.getName() + " for input: " + userInput);
             if (a.getName().equalsIgnoreCase(userInput)) { messageToUser = a.getDescription(); }
         }
         return messageToUser;
