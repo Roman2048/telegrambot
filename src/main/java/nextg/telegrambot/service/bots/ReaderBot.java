@@ -6,38 +6,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nextg.telegrambot.domain.Update;
 import nextg.telegrambot.exception.ConnectionTimeOutException;
 import nextg.telegrambot.exception.TokenNotFoundException;
-import nextg.telegrambot.repository.UpdateRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @Component
-public class ReaderBot {
+public class ReaderBot extends AbstractBot {
 
-    @Value("${token}")
-    String token;
-    String botUrl = "https://api.telegram.org/bot";
-    String methodName = "getUpdates";
-    String proxyHostName = "51.38.71.101";
-    int proxyPort = 8080;
-
-    @Autowired
-    UpdateRepository updateRepository;
+    private String methodName = "getUpdates";
 
     public Set<JsonNode> update() throws ConnectionTimeOutException, JsonProcessingException, TokenNotFoundException {
-        HttpClient client = getHttpClient();
-        HttpRequest request = getHttpRequest();
+        HttpClient httpClient = getHttpClient();
+        HttpRequest httpRequest = getHttpRequest();
         String response = doRequest(getHttpClient(), getHttpRequest());
         if (response.equals("")) { throw new ConnectionTimeOutException(); }
         List<JsonNode> updates = getJsonNodes(response);
@@ -63,24 +48,11 @@ public class ReaderBot {
         return jsonNode.findParents("update_id");
     }
 
-    private String doRequest(HttpClient client, HttpRequest request) {
-        return client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-                    .thenApply(HttpResponse::body)
-                    .completeOnTimeout("", 4, TimeUnit.SECONDS)
-                    .join();
-    }
-
     private HttpRequest getHttpRequest() throws TokenNotFoundException {
         if (token == null) { throw new TokenNotFoundException(); }
         return HttpRequest.newBuilder()
                     .header("Accept", "application/json")
                     .uri(URI.create(botUrl + token + "/" + methodName))
-                    .build();
-    }
-
-    private HttpClient getHttpClient() {
-        return HttpClient.newBuilder()
-                    .proxy(ProxySelector.of(new InetSocketAddress(proxyHostName, proxyPort)))
                     .build();
     }
 }
