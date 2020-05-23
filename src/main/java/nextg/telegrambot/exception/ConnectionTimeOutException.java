@@ -1,4 +1,4 @@
 package nextg.telegrambot.exception;
 
-public class ConnectionTimeOutException extends Throwable {
+public class ConnectionTimeOutException extends RuntimeException {
 }

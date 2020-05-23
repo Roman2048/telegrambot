@@ -40,6 +40,9 @@ public class WriterBot extends AbstractBot {
         boolean responseStatus = false;
         while(!responseStatus) {
             String telegramResponse = doRequest(httpClient, httpRequest);
+            if (telegramResponse == null) {
+                telegramResponse = "";
+            }
             try {
                 responseStatus = new ObjectMapper().readTree(telegramResponse).get("ok").asBoolean();
             } catch (JsonProcessingException e) {

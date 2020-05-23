@@ -21,7 +21,7 @@ public class BotService {
     @Autowired
     WriterBot writerBot;
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 1000)
     private void runUpdateCycle() {
         try {
             Set<JsonNode> newUpdates = readerBot.update();

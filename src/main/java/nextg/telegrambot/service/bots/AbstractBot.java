@@ -24,9 +24,7 @@ public abstract class AbstractBot {
     protected UpdateRepository updateRepository;
 
     protected HttpClient getHttpClient() {
-        return HttpClient.newBuilder()
-                .proxy(ProxySelector.of(new InetSocketAddress(proxyHostName, proxyPort)))
-                .build();
+        return HttpClient.newBuilder().build();
     }
 
     protected String doRequest(HttpClient client, HttpRequest request) {
