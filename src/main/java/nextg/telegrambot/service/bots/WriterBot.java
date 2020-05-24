@@ -45,7 +45,7 @@ public class WriterBot extends AbstractBot {
             }
             try {
                 responseStatus = new ObjectMapper().readTree(telegramResponse).get("ok").asBoolean();
-            } catch (JsonProcessingException e) {
+            } catch (JsonProcessingException | NullPointerException e) {
                 continue;
             }
             if (responseStatus && !telegramResponse.equals("")) {
